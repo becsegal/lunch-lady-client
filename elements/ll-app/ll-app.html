@@ -1,0 +1,88 @@
+
+<link rel="import" href="/elements/ll-user/ll-user.html">
+<link rel="import" href="/elements/ll-login/ll-login.html">
+<link rel="import" href="/elements/ll-welcome/ll-welcome.html">
+<link rel="import" href="/elements/ll-contacts/ll-contacts.html">
+
+<polymer-element name='ll-app'>
+
+  <style>
+    * {
+      font-family: 'Helvetica';
+    }
+    div {
+      background: yellow;
+    }
+  </style>
+  
+
+  <template>
+    <ll-user id='user'></ll-user>
+
+    <core-scaffold>
+      <core-header-panel navigation flex mode="seamed">
+        <core-toolbar>Lunch Lady</core-toolbar>
+        <core-menu theme="core-light-theme" selectedItem='{{item}}'>
+          <template repeat="{{s in menu_options}}">
+              <core-item icon="settings" label="{{s.label}}"></core-item>
+          </template>
+        </core-menu>
+      </core-header-panel>
+      <div tool>{{item.label}}</div>
+      <div>
+        <div id='ll_content'></div>
+      </div>
+    </core-scaffold>
+  </template>
+  <script>
+    Polymer({
+      ready: function() {
+        this.contentEl = null;
+        this.menus = {
+          logged_out: [{label: 'About'}],
+          logged_in: [{label: 'Account'}, {label: 'Orders'}, {label: 'Contacts'}]
+        },
+        this.pages = {
+          login: {
+            menu: this.menus['logged_out'],
+            template: 'll-login'
+          },
+          welcome: {
+            menu: this.menus['logged_in'],
+            template: 'll-welcome' 
+          }, 
+          contacts: {
+            menu: this.menus['logged_in'],
+            template: 'll-contacts'
+          }
+        },
+        this.menu_options = [];
+        _app = this;
+        this.$.user.addEventListener('authorization', function(e) {
+          if(e.detail.success) {
+            _app.updatePage('welcome')
+          } else {
+            _app.updatePage('login');
+          }
+        });
+      },
+      itemChanged: function() {
+        this.updatePage(this.item.label.toLowerCase());
+      },
+      updatePage: function(page) {
+        this.menu_options = this.pages[page].menu;
+        var el = document.createElement(this.pages[page].template);
+        el.user = _app.$.user.model;
+
+        if (this.contentEl != null) {
+          _app.$.ll_content.removeChild(this.contentEl);
+        }
+        this.contentEl = el;
+        this.$.ll_content.appendChild(this.contentEl);
+        if (this.pages[page].onShow) {
+          this.pages[page].onShow();
+        }
+      }
+    });
+  </script>
+</polymer-element>

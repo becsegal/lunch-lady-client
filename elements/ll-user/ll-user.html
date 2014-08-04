@@ -1,0 +1,37 @@
+
+
+<link rel="import" 
+      href="/bower_components/core-ajax/core-ajax.html">
+
+
+<polymer-element name="ll-user" attributes='authorized'>
+  <template>
+    <core-ajax
+      auto
+      url="http://localhost:3000/users/me"
+      handleAs="json"
+      withCredentials=true
+      on-core-response="{{ajaxResponse}}"
+      on-core-error="{{ajaxError}}"></core-ajax>
+    
+  </template>
+
+  <script>
+    Polymer({
+      created: function() {
+        this.model = {},
+        this.contacts = []
+      },
+      ajaxResponse: function(e) {
+        this.model = e.detail.response;
+        this.fire('authorization', {success: true});
+      },
+      ajaxError: function(e) {
+        this.fire('authorization', {success: false});
+      },
+      fetchContacts: function() {
+        this.$.contacts_fetch.go();
+      }
+    });
+  </script>
+</polymer-element

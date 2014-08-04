@@ -1,0 +1,15 @@
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+
+<polymer-element name="ll-login">
+  <template>
+    <paper-button raisedButton on-click='{{signIn}}' label="Sign in with Venmo"></paper-button>
+  </template>
+
+  <script>
+    Polymer('ll-login', {
+      signIn: function() {
+        window.location = 'http://localhost:3000/venmo/authorize?redirect_url=http://localhost:8000'
+      }
+    });
+  </script>
+</polymer-element>

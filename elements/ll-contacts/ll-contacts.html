@@ -1,0 +1,80 @@
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
+
+
+<polymer-element name="ll-contacts">
+
+  <template>
+
+    <style>
+      paper-input.label-only {
+        width: auto;
+      }
+      paper-input.label-only /deep/ #underline {
+        border: none;
+        color: red;
+      }
+      paper-input {
+        margin-bottom: 5px;
+      }
+    </style>
+
+    <core-ajax
+      id='fetch_contacts'
+      url="http://localhost:3000/users/{{user.id}}/contacts"
+      handleAs="json"
+      withCredentials=true
+      on-core-response="{{contactsResponse}}"
+      on-core-error="{{contactsError}}"></core-ajax>
+
+    <core-ajax
+      id='sync_contacts'
+      url="http://localhost:3000/users/{{user.id}}/contacts/sync"
+      handleAs="json"
+      withCredentials=true
+      method='POST'
+      on-core-response="{{contactsResponse}}"
+      on-core-error="{{contactsSyncError}}"></core-ajax>
+
+    <paper-button raisedButton label='Sync with Venmo' on-click='{{ syncContacts }}'></paper-button>
+    <div id='contacts'>
+      <template repeat="{{ c in contacts }}">
+        <paper-input disabled label="{{c.username}}" class='label-only'></paper-input>
+        <paper-input label="{{c.nickname | hideNull}}" on-change='{{nicknameChanged}}'></paper-input>
+        <div class='clear'></div>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      created: function() {
+        this.user = null;
+        this.contacts = [];
+      },
+      userChanged: function() {
+        this.$.fetch_contacts.go();
+      },
+      contactsResponse: function(e) {
+        this.contacts = e.detail.response.contacts;
+      },
+      syncContacts: function() {
+        this.$.sync_contacts.go();
+      },
+      hideNull: function(value) {
+        if (value == null || (typeof value) == 'undefined' || value == 'null')  {
+          return '';
+        }
+        return value;
+      },
+      nicknameChanged: function(event) {
+        event.preventDefault();
+        // if (event instanceof CustomEvent) {
+          console.log(event);
+        // }
+        return false;
+      }
+            
+    });
+  </script>
+</polymer-element>
